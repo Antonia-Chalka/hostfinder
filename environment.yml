@@ -1,5 +1,5 @@
 # You can use this file to create a conda environment for this pipeline:
-#   conda env create -f environment.yml
+#   conda env create --name hostfinder_env -f environment.yml
 name: nf-core-hostfinder-1.0dev
 channels:
   - conda-forge
@@ -7,7 +7,7 @@ channels:
   - defaults
 dependencies:
   # nf-core standard packages
-  - conda-forge::python=3.9
+  - conda-forge::python=3.11.9
   - conda-forge::markdown=3.1.1
   - conda-forge::pymdown-extensions=6.0
   - conda-forge::pygments=2.5.2
@@ -19,8 +19,8 @@ dependencies:
   - bioconda::pymlst=2.2.2
   - bioconda::snp-dists=0.8.2
   # Additional Python packages
-  - conda-forge::scikit-learn:1.6.1
-  - conda-forge::networkx:3.2.1
-  - conda-forge::pandas:2.2.3
-  - conda-forge::numpy:2.0.2
-  - conda-forge::matplotlib:3.9.1
+  - conda-forge::scikit-learn=1.5.1
+  - conda-forge::networkx=3.4.2
+  - conda-forge::pandas=2.2.3
+  - conda-forge::numpy=1.26.4
+  - conda-forge::matplotlib=3.9.1
