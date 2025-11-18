@@ -1,6 +1,4 @@
-# ![nf-core/hostfinder](docs/images/nf-core-hostfinder_logo.png)
-
-**Bacterial Source Atrribution based on pangenome**.
+**Bacterial Source Attribution based on pangenome**.
 
 [![GitHub Actions CI Status](https://github.com/nf-core/hostfinder/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/hostfinder/actions)
 [![GitHub Actions Linting Status](https://github.com/nf-core/hostfinder/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/hostfinder/actions)
@@ -19,59 +17,145 @@ i. Install [`nextflow`](https://nf-co.re/usage/installation)
 
 ii. Install either [`Docker`](https://docs.docker.com/engine/installation/) or [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/) for full pipeline reproducibility (please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))
 
-iii. Download the pipeline and test it on a minimal dataset with a single command
+iii. Create docker file: 
 
-```bash
-nextflow run nf-core/hostfinder -profile test,<docker/singularity/conda/institute>
+`docker build -t annitachalka/nf-core-hostfinder`
+   
+OR Create conda environment: 
+
+`conda env create --name hostfinder_env -f environment.yml`
+
+## Templates
+
+Test all assemblies in a directory with both pangenome and wgmlst models.
+
+``` bash
+nextflow run main.nf \
+    --mode 'test' \
+    --profile conda \
+    --assembly_dir data/test/model_test_round_2/1_assembly ./data/test/model_build_in/1_assembly \
+    --pangenome_models_dir ./data/test/model_test_round_2/0.models/6thround/pangenome_models \
+    --pangenome_reference_folder ./data/test/model_test_round_2/0.pangenome \
+    --pangenome_thresholds_file ./data/test/model_test_round_2/0.models/6thround/pangenome_thresholds.json \
+    --wgmlst_models_dir ./data/test/model_test_round_2/0.models/6thround/wgmlst_models \
+    --wgmlst_reference_file ./data/test/model_test_round_2/0.wgmlst/ecoli \
+    --wgmlst_thresholds_file ./data/test/model_test_round_2/0.models/6thround/wgmlst_thresholds.json \
+    --model_features_file ./data/test/model_test_round_2/0.models/6thround/features.txt \
+    --test_pangenome true \
+    --test_wgmlst true \
+    --outdir ./results/model_test \
+    -resume
 ```
 
-> Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
+Only wgmlst models
 
-iv. Start running your own analysis!
-
-<!-- TODO nf-core: Update the default command above used to run the pipeline -->
-
-```bash
-nextflow run nf-core/hostfinder -profile <docker/singularity/conda/institute> --reads '*_R{1,2}.fastq.gz' --genome GRCh37
+``` bash
+nextflow run main.nf \
+    --mode 'test' \
+    --profile conda \
+    --assembly_dir data/test/model_test_round_2/1_assembly ./data/test/model_build_in/1_assembly \
+    --wgmlst_models_dir ./data/test/model_test_round_2/0.models/6thround/wgmlst_models \
+    --wgmlst_reference_file ./data/test/model_test_round_2/0.wgmlst/ecoli \
+    --wgmlst_thresholds_file ./data/test/model_test_round_2/0.models/6thround/wgmlst_thresholds.json \
+    --test_pangenome false \
+    --test_wgmlst true \
+    --outdir ./results/model_test \
+    -resume
 ```
 
-See [usage docs](docs/usage.md) for all of the available options when running the pipeline.
+Only pangenome models
 
-## Documentation
+``` bash
+nextflow run main.nf \
+    --mode 'test' \
+    --profile conda \
+    --assembly_dir data/test/model_test_round_2/1_assembly ./data/test/model_build_in/1_assembly \
+    --pangenome_models_dir ./data/test/model_test_round_2/0.models/6thround/pangenome_models \
+    --pangenome_reference_folder ./data/test/model_test_round_2/0.pangenome \
+    --pangenome_thresholds_file ./data/test/model_test_round_2/0.models/6thround/pangenome_thresholds.json \
+    --model_features_file ./data/test/model_test_round_2/0.models/6thround/features.txt \
+    --test_pangenome true \
+    --test_wgmlst false \
+    --outdir ./results/model_test \
+    -resume
+```
 
-The nf-core/hostfinder pipeline comes with documentation about the pipeline, found in the `docs/` directory:
 
-1. [Installation](https://nf-co.re/usage/installation)
-2. Pipeline configuration
-    * [Local installation](https://nf-co.re/usage/local_installation)
-    * [Adding your own system config](https://nf-co.re/usage/adding_own_config)
-    * [Reference genomes](https://nf-co.re/usage/reference_genomes)
-3. [Running the pipeline](docs/usage.md)
-4. [Output and how to interpret the results](docs/output.md)
-5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
+## Full Parameters
 
-<!-- TODO nf-core: Add a brief overview of what the pipeline does and how it works -->
+```
+Usage:
 
-## Credits
+    The typical command for running the pipeline is as follows:
 
-nf-core/hostfinder was originally written by Antonia Chalka.
+    nextflow run nf-core/hostfinder --reads '*_R{1,2}.fastq.gz' -profile docker
 
-## Contributions and Support
+    Mandatory arguments:
+        --mode [str]                    Mode to run the pipeline in. Choose either 'train' or 'test'
+        -profile [str]                  Configuration profile to use. Can use multiple (comma separated)
+                                        Available: conda, docker, singularity, test, awsbatch, <institute> and more
 
-If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
+        Training Pipeline Options:
+        --assembly_dir                  Directory of your fasta files (full path required) [./data/test/model_build_in/assemblies]
+        --hostdata_file                 CSV file containing assembly filename, host, year and region [./test_data/model_build_in/metadata.csv]
+        
+        Testing Pipeline Options:
+        --assembly_dir                  Directory of your fasta files (full path required) [input_test]
+        --pangenome_models_dir          Folder of pangenome models (generated by previous pipeline) [out/4.model/pangenome_models]  
+        --pangenome_reference_folder    Reference genome for pangenome (panaroo-integrate) [ ]  
+        --pangenome_thresholds_file     Thresholds file for pangenome model (generated by previous pipeline) [out/4.model/pangenome_models/model_thresholds.csv]
+        --model_features_file           Features file for pangenome model (generated by previous pipeline) [out/4.model/pangenome_models/model_features.csv]  
+        --wgmlst_models_dir             Folder of wgMLST models (generated by previous pipeline) [out/4.model/wgmlst_models] 
+        --wgmlst_reference_file         pyMLST wgMLST schema used for training (mlst --scheme) [data/ref/Escherichia_coli] 
+        --wgmlst_thresholds_file        Thresholds file for wgMLST model (generated by previous pipeline) [out/4.model/wgmlst_models/model_thresholds.csv]
 
-For further information or help, don't hesitate to get in touch on [Slack](https://nfcore.slack.com/channels/hostfinder) (you can join with [this invite](https://nf-co.re/join/slack)).
+    Training Options:
+        Tool Options:
+        --panaroo_mode                  Panaroo assembly filtering mode (panaroo --clean-mode) ["moderate"]
+        --panaroo_threads               Num of threads to use for panaroo (panaroo -t) [10]
 
-## Citation
+        Input file Options:
+        --assembly_column               Column name of your assemblies. Must contain extension eg myassembly.fasta ["Filename"]
+        --host_column                   Column name of your hosts ["Host"]
+        --region_column                 Column of region of origin. Used to detect clonal clusters. Can be empty, but must exist. ["Region"]
+        --year_collection               Column of year each assembly was collected. Used to detect clonal clusters. Can be empty, but must exist. ["Year"]
 
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi. -->
-<!-- If you use  nf-core/hostfinder for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
+        Assembly Quality Parameters:
+        --as_ln_upr                     Maximum accepted assembly length [6000000]
+        --as_ln_lwr                     Minimum accepted assembly length [4000000]
+        --ctg_count                     Minimum accepted number of contigs [500]
+        --largest_ctg                   Minimum accepted length of largest contig [100000] 
+        --n50                           Minimum accepted n50 [50000]
+        --gc_upr                        Maximum accepted GC % [54]
+        --gc_lwr                        Minimum accepted GC % [50]
+        
+        Clonal Detection Parameters:
+        --snp_dist_threshold            SNP difference used to detect clonal clusters. Used in conjunction with region & collection year metadata. [10]
 
-You can cite the `nf-core` publication as follows:
+        Other Parameters:
+        --panaroo_batch_size            Number of samples to process in each panaroo batch [500]
+        
+    Testing Options:
+        --panaroo_threads               Num of threads to use for panaroo (panaroo -t) [10]
+    
+        --test_pangenome                Run pangenome testing pipeline [true]
+        --test_wgmlst                   Run wgMLST testing pipeline [true]   
 
-> **The nf-core framework for community-curated bioinformatics pipelines.**
->
-> Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.
->
-> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).  
-> ReadCube: [Full Access Link](https://rdcu.be/b1GjZ)
+
+    References:
+        --prokka_ref_file               'Trusted' protein file for prokka (prokka --proteins) [data/ref/EC958_SNIPPYREF.chr.fa]
+        --snp_ref_file                  Reference file for snippy (snippy --ref) [./data/ref/EC958_SNIPPYREF.chr.fa]
+
+    Other options:
+        --assembly_extension            Extension of your assembly files [fasta]
+        --outdir [file]                 The output directory where the results will be saved
+        --email [email]                 Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits
+        --email_on_fail [email]         Same as --email, except only send mail if the workflow is not successful
+        -name [str]                     Name for the pipeline run. If not specified, Nextflow will automatically generate a random mnemonic
+
+    AWSBatch options:
+        --awsqueue [str]                The AWSBatch JobQueue that needs to be set when running on AWSBatch
+        --awsregion [str]               The AWS Region for your AWS Batch job to run on
+        --awscli [str]                  Path to the AWS CLI tool
+
+```
