@@ -19,7 +19,7 @@ ii. Install either [`Docker`](https://docs.docker.com/engine/installation/) or [
 
 iii. Create docker file: 
 
-`docker build -t annitachalka/nf-core-hostfinder`
+`docker build -t annitachalka/nf-core-hostfinder .`
    
 OR Create conda environment: 
 
