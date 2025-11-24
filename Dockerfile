@@ -1,7 +1,9 @@
-FROM nfcore/base:1.9
-LABEL authors="Antonia Chalka" \
-      description="Docker image containing all software requirements for the nf-core/hostfinder pipeline"
+# ┌────────────────────────────────────────────────────────────────────────────┐
+# │ Dockerfile: Ubuntu + Miniconda + custom env                                │
+# └────────────────────────────────────────────────────────────────────────────┘
 
+# 1) Base image
+FROM continuumio/miniconda3
 # Install the conda environment
 COPY environment.yml /
 RUN conda env create -f /environment.yml && conda clean -a
