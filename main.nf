@@ -347,6 +347,7 @@ include { module_panaroo_merge              } from "$projectDir/modules/module_p
 include {module_pangenome_integrate         } from "$projectDir/modules/module_pangenome_integrate.nf"
 include {module_pangenome_match             } from "$projectDir/modules/module_pangenome_match.nf"
 include { module_pymlst_assign              } from "$projectDir/modules/module_pymlst_assign.nf"
+include { module_wgmlst_merge               } from "$projectDir/modules/module_wgmlst_merge.nf"
 include { module_pymlst_predict             } from "$projectDir/modules/module_pymlst_predict.nf"
 include { module_pangenome_predict          } from "$projectDir/modules/module_pangenome_predict.nf"
 // TODO nf-core: Add other modules here
@@ -479,13 +480,17 @@ workflow {
         }
         if (params.test_wgmlst){
             module_pymlst_assign(
-                ch_assemblies.flatten(), 
+                ch_assemblies.flatten(),
                 wgmlst_reference_file
                 )
-            
+
+            module_wgmlst_merge(
+                module_pymlst_assign.out.wgmlst_single.collect()
+            )
+
             module_pymlst_predict(
                 model_test_wgmlst_script,
-                module_pymlst_assign.out.wgmlst_single,
+                module_wgmlst_merge.out.merged_wgmlst,
                 ch_wgmlst_models_path,
                 wgmlst_thresholds_file
 

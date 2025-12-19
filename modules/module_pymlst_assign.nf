@@ -5,7 +5,7 @@ process module_pymlst_assign {
     path wgmlst_reference_file
 
     output:
-        path "wgmlst.tsv", emit: wgmlst_single
+        path "${assembly.baseName}_wgmlst.tsv", emit: wgmlst_single
 
     script:
 
@@ -14,7 +14,7 @@ process module_pymlst_assign {
 
     wgmlst add -s "${assembly.baseName}" wgmlst_ref $assembly
 
-    wgMLST mlst wgmlst_ref > wgmlst.tsv
+    wgMLST mlst wgmlst_ref > ${assembly.baseName}_wgmlst.tsv
 
     """
 
