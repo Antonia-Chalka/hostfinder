@@ -19,7 +19,8 @@ def main():
     gene_col = 'Gene' if 'Gene' in test_data.columns else '#GeneId'
     melted_data = test_data.melt(id_vars=[gene_col], var_name='assemblies', value_name='value')
     trans = melted_data.pivot(index='assemblies', columns=gene_col, values='value')
-    trans_reduced = trans.fillna(0)
+    # Convert to binary: present (any non-empty value) = 1, absent (NaN) = 0
+    trans_reduced = trans.notna().astype(int)
 
     # Load threshold configuration if provided
     thresholds = {}
@@ -54,8 +55,8 @@ def main():
 
         print(f"Using threshold {threshold} for {host_name}")
         
-        # Reindex data to match model features
-        X =  trans_reduced[model.feature_names_in_]
+        # Reindex data to match model features (missing features filled with 0 = absent)
+        X = trans_reduced.reindex(columns=model.feature_names_in_, fill_value=0)
         
         # Make predictions
         test_pred_proba = model.predict_proba(X)
