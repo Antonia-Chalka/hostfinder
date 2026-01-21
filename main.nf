@@ -172,8 +172,10 @@ if (params.mode=="train"){
 
     if (params.test_pangenome) {
         if (params.pangenome_reference_folder) {
+            // Use .first() to convert queue channel to value channel so it can be reused for each sample
             pangenome_reference_folder = Channel
                 .fromPath("${params.pangenome_reference_folder}", type:'dir', checkIfExists: true)
+                .first()
             model_features_file = file(params.model_features_file,checkIfExists: true)
         }
         if (params.prokka_ref_file) {
@@ -316,7 +318,7 @@ process get_software_versions {
                 }
 
     output:
-    file 'software_versions_mqc.yaml' into ch_software_versions_yaml
+    file 'software_versions_mqc.yaml'
     file "software_versions.csv"
 
     script:
@@ -346,7 +348,9 @@ include { module_panaroo_batch              } from "$projectDir/modules/module_p
 include { module_panaroo_merge              } from "$projectDir/modules/module_panaroo_merge.nf"
 include {module_pangenome_integrate         } from "$projectDir/modules/module_pangenome_integrate.nf"
 include {module_pangenome_match             } from "$projectDir/modules/module_pangenome_match.nf"
+include {module_pangenome_merge             } from "$projectDir/modules/module_pangenome_merge.nf"
 include { module_pymlst_assign              } from "$projectDir/modules/module_pymlst_assign.nf"
+include { module_wgmlst_merge               } from "$projectDir/modules/module_wgmlst_merge.nf"
 include { module_pymlst_predict             } from "$projectDir/modules/module_pymlst_predict.nf"
 include { module_pangenome_predict          } from "$projectDir/modules/module_pangenome_predict.nf"
 // TODO nf-core: Add other modules here
@@ -469,23 +473,31 @@ workflow {
                 model_features_file,
                 module_pangenome_integrate.out.test_dir
             )
-            
+
+            module_pangenome_merge(
+                module_pangenome_match.out.matched_presence_absence.collect()
+            )
+
             module_pangenome_predict(
                 model_test_pangenome_script,
-                module_pangenome_match.out.matched_presence_absence,
+                module_pangenome_merge.out.merged_pangenome,
                 ch_pangenome_models,
                 pangenome_thresholds_file
             )
         }
         if (params.test_wgmlst){
             module_pymlst_assign(
-                ch_assemblies.flatten(), 
+                ch_assemblies.flatten(),
                 wgmlst_reference_file
                 )
-            
+
+            module_wgmlst_merge(
+                module_pymlst_assign.out.wgmlst_single.collect()
+            )
+
             module_pymlst_predict(
                 model_test_wgmlst_script,
-                module_pymlst_assign.out.wgmlst_single,
+                module_wgmlst_merge.out.merged_wgmlst,
                 ch_wgmlst_models_path,
                 wgmlst_thresholds_file
 
