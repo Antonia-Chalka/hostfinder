@@ -172,8 +172,10 @@ if (params.mode=="train"){
 
     if (params.test_pangenome) {
         if (params.pangenome_reference_folder) {
+            // Use .first() to convert queue channel to value channel so it can be reused for each sample
             pangenome_reference_folder = Channel
                 .fromPath("${params.pangenome_reference_folder}", type:'dir', checkIfExists: true)
+                .first()
             model_features_file = file(params.model_features_file,checkIfExists: true)
         }
         if (params.prokka_ref_file) {
@@ -346,6 +348,7 @@ include { module_panaroo_batch              } from "$projectDir/modules/module_p
 include { module_panaroo_merge              } from "$projectDir/modules/module_panaroo_merge.nf"
 include {module_pangenome_integrate         } from "$projectDir/modules/module_pangenome_integrate.nf"
 include {module_pangenome_match             } from "$projectDir/modules/module_pangenome_match.nf"
+include {module_pangenome_merge             } from "$projectDir/modules/module_pangenome_merge.nf"
 include { module_pymlst_assign              } from "$projectDir/modules/module_pymlst_assign.nf"
 include { module_wgmlst_merge               } from "$projectDir/modules/module_wgmlst_merge.nf"
 include { module_pymlst_predict             } from "$projectDir/modules/module_pymlst_predict.nf"
@@ -470,10 +473,14 @@ workflow {
                 model_features_file,
                 module_pangenome_integrate.out.test_dir
             )
-            
+
+            module_pangenome_merge(
+                module_pangenome_match.out.matched_presence_absence.collect()
+            )
+
             module_pangenome_predict(
                 model_test_pangenome_script,
-                module_pangenome_match.out.matched_presence_absence,
+                module_pangenome_merge.out.merged_pangenome,
                 ch_pangenome_models,
                 pangenome_thresholds_file
             )
