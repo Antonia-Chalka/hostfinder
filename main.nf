@@ -459,7 +459,7 @@ workflow {
                         prokka_ref_file)
             
             module_pangenome_integrate(module_prokka.out.annotation.flatten(),
-                pangenome_reference_folder,
+                pangenome_reference_folder.first(),
                 params.panaroo_threads)
 
             module_pangenome_match(
@@ -473,7 +473,7 @@ workflow {
             module_pangenome_predict(
                 model_test_pangenome_script,
                 module_pangenome_match.out.matched_presence_absence,
-                ch_pangenome_models,
+                ch_pangenome_models.first(),
                 pangenome_thresholds_file
             )
         }
@@ -482,13 +482,12 @@ workflow {
                 ch_assemblies.flatten(), 
                 wgmlst_reference_file
                 )
-            
+                
             module_pymlst_predict(
                 model_test_wgmlst_script,
-                module_pymlst_assign.out.wgmlst_single,
-                ch_wgmlst_models_path,
+                module_pymlst_assign.out.wgmlst_single.flatten(),
+                ch_wgmlst_models_path.first(),
                 wgmlst_thresholds_file
-
             )
         }
     }

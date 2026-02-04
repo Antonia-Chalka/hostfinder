@@ -1,5 +1,5 @@
 process module_pangenome_predict {
-    publishDir  "${params.outdir}/predictions", mode: 'copy', overwrite: true
+    publishDir  "${params.outdir}/${input_data}_predictions", mode: 'copy', overwrite: true
 
     input:
     path model_test_pangenome_script
