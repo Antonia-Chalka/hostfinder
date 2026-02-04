@@ -75,7 +75,7 @@ def helpMessage() {
 
     References:
         --prokka_ref_file               'Trusted' protein file for prokka (prokka --proteins) [data/ref/EC958_SNIPPYREF.chr.fa]
-        --snp_ref_file                  Reference file for snippy (snippy --ref) [./data/ref/EC958_SNIPPYREF.chr.fa]
+        --snp_ref_file                  Reference file for snippy (snippy --ref) [./data/ref/ecoli_trusted_uniprot.fasta]
 
     Other options:
         --assembly_extension            Extension of your assembly files [fasta]
