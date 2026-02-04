@@ -316,7 +316,7 @@ process get_software_versions {
                 }
 
     output:
-    file 'software_versions_mqc.yaml' into ch_software_versions_yaml
+    file 'software_versions_mqc.yaml'
     file "software_versions.csv"
 
     script:
