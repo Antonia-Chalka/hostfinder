@@ -1,5 +1,5 @@
 process module_pangenome_integrate {
-    publishDir  "${params.outdir}/2.genomic_features/pangenome_integrate", mode: 'copy', overwrite: true  
+    //publishDir  "${params.outdir}/2.genomic_features/pangenome_integrate", mode: 'copy', overwrite: true  
     cache 'lenient'
 
     input:
